@@ -2,6 +2,7 @@ package com.generic.service.entity;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.generic.service.listener.GenericListener;
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
@@ -27,10 +28,10 @@ import java.util.UUID;
 @NoArgsConstructor
 @Accessors(chain = true)
 @MappedSuperclass
-@EntityListeners(GenericEntity.class)
+@EntityListeners(GenericListener.class)
 public abstract class GenericEntity implements Serializable {
     @Id
-    @Column(name = "id", columnDefinition = "BINARY(16)", nullable = false, unique = true, updatable = false)
+    @Column(name = "id", columnDefinition = "uuid", nullable = false, unique = true, updatable = false)
     private UUID id;
 
     @Column(nullable = false)

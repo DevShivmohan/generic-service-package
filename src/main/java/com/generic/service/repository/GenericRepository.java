@@ -11,9 +11,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 @NoRepositoryBean
-public interface GenericRepository<T extends GenericEntity> extends JpaRepository<T, Long>, JpaSpecificationExecutor<T> {
+public interface GenericRepository<T_ENTITY extends GenericEntity> extends JpaRepository<T_ENTITY, UUID>, JpaSpecificationExecutor<T_ENTITY> {
 
-    Optional<T> findByIdAndDeletedFalse(UUID id);
+    Optional<T_ENTITY> findByIdAndDeletedFalse(UUID id);
 
-    Page<T> findByDeletedFalse(Pageable pageable);
+    Page<T_ENTITY> findByDeletedFalse(Pageable pageable);
 }
