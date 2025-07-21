@@ -34,8 +34,8 @@ public abstract class GenericEntity implements Serializable {
     @Column(name = "id", columnDefinition = "uuid", nullable = false, unique = true, updatable = false)
     private UUID id;
 
-    @Column(nullable = false)
-    private Integer tenantId;
+    @Column(columnDefinition = "uuid")
+    private UUID tenantId;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -43,9 +43,10 @@ public abstract class GenericEntity implements Serializable {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
+    @Column(columnDefinition = "uuid")
     private UUID updatedBy;
 
-    @Column(updatable = false)
+    @Column(updatable = false, columnDefinition = "uuid")
     private UUID createdBy;
 
     @JsonIgnore

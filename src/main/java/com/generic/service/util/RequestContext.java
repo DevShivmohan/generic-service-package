@@ -9,10 +9,10 @@ import java.util.Optional;
 public class RequestContext {
     public static GenericLoggedInUserModel getUserFromRequestContextHolder() {
         final RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
-        if (attributes != null) {
+        if (attributes != null && attributes.getAttribute("genericLoggedInUserModel", RequestAttributes.SCOPE_REQUEST) != null) {
             final GenericLoggedInUserModel genericLoggedInUserModel = attributes != null ? (GenericLoggedInUserModel) attributes.getAttribute("genericLoggedInUserModel", RequestAttributes.SCOPE_REQUEST) : null;
             return Optional.of(genericLoggedInUserModel).orElse(new GenericLoggedInUserModel());
         }
-        return null;
+        return new GenericLoggedInUserModel();
     }
 }

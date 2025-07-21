@@ -20,5 +20,5 @@ import java.util.UUID;
 public class GenericLoggedInUserModel {
     private UUID userId;
 
-    private Integer tenantId;
+    private UUID tenantId;
 }
