@@ -1,4 +1,4 @@
-package com.generic.service.mode;
+package com.generic.service.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

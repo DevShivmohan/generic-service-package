@@ -1,6 +1,6 @@
 package com.generic.service.util;
 
-import com.generic.service.mode.GenericLoggedInUserModel;
+import com.generic.service.model.GenericLoggedInUserModel;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 
