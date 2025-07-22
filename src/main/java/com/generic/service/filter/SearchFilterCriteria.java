@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -19,7 +18,7 @@ public class SearchFilterCriteria {
     @NotBlank
     private String filterKey;
 
-    private List<Object> value = new ArrayList<>();
+    private List<Object> value;
 
     @NotNull
     private String operation;
