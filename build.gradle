@@ -3,11 +3,12 @@ plugins {
     id 'java-library'
     id 'org.springframework.boot' version '3.5.3'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'maven-publish'
 }
 
 
-group = 'com.generic.service'
-version = '0.0.1-SNAPSHOT'
+group = "com.devshivmohan"
+version = "1.0.0-SNAPSHOT"
 
 java {
     toolchain {
@@ -46,4 +47,24 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifactId = 'generic-service'
+        }
+    }
+
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/devshivmohan/generic-service-packages")
+            credentials {
+                username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+                password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+            }
+        }
+    }
 }
