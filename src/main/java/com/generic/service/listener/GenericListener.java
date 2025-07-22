@@ -1,8 +1,8 @@
 package com.generic.service.listener;
 
 import com.generic.service.entity.GenericEntity;
+import com.generic.service.service.GenericTimeCreator;
 import com.generic.service.service.IdGenerationStrategy;
-import com.generic.service.util.GenericTimeUtil;
 import com.generic.service.util.RequestContext;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
@@ -15,12 +15,13 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 public class GenericListener {
     private final IdGenerationStrategy idGenerationStrategy;
+    private final GenericTimeCreator genericTimeCreator;
 
     @PrePersist
     protected void beforePersist(GenericEntity genericEntity) {
         genericEntity.setId(idGenerationStrategy.generateId());
-        genericEntity.setCreatedAt(GenericTimeUtil.getLocalDateTimeInIST());
-        genericEntity.setUpdatedAt(GenericTimeUtil.getLocalDateTimeInIST());
+        genericEntity.setCreatedAt(genericTimeCreator.createLocalDateTime());
+        genericEntity.setUpdatedAt(genericTimeCreator.createLocalDateTime());
         genericEntity.setCreatedBy(RequestContext.getUserFromRequestContextHolder().getUserId());
         genericEntity.setUpdatedBy(RequestContext.getUserFromRequestContextHolder().getUserId());
         genericEntity.setTenantId(RequestContext.getUserFromRequestContextHolder().getTenantId());
@@ -28,7 +29,7 @@ public class GenericListener {
 
     @PreUpdate
     protected void beforeUpdate(GenericEntity genericEntity) {
-        genericEntity.setUpdatedAt(GenericTimeUtil.getLocalDateTimeInIST());
+        genericEntity.setUpdatedAt(genericTimeCreator.createLocalDateTime());
         genericEntity.setUpdatedBy(RequestContext.getUserFromRequestContextHolder().getUserId());
     }
 
