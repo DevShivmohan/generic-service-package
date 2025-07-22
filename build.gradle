@@ -7,7 +7,7 @@ plugins {
 }
 
 
-group = "com.devshivmohan"
+group = "devshivmohan"
 version = "1.0.0-SNAPSHOT"
 
 java {
