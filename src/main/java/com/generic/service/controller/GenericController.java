@@ -4,6 +4,7 @@ import com.generic.service.dto.GenericPaginationRes;
 import com.generic.service.entity.GenericEntity;
 import com.generic.service.filter.SearchFilter;
 import com.generic.service.service.impl.GenericService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -26,8 +27,11 @@ public abstract class GenericController<T_REQ, T_RES, T_ENTITY extends GenericEn
     private final GenericService<T_REQ, T_RES, T_ENTITY> service;
 
     @GetMapping
-    public ResponseEntity<GenericPaginationRes<T_RES>> getPage(@RequestParam(name = "pageNum", defaultValue = "0") int pageNum, @RequestParam(name = "pageSize", defaultValue = "20") int pageSize) {
-        return ResponseEntity.ok(service.getAllPage(PageRequest.of(pageNum, pageSize, Sort.by(Sort.Direction.DESC, "updatedAt"))));
+    public ResponseEntity<GenericPaginationRes<T_RES>> getPage(@RequestParam(name = "pageNumber", defaultValue = "0") int pageNum,
+                                                               @RequestParam(name = "pageSize", defaultValue = "20") int pageSize,
+                                                               @RequestParam(name = "sortBy", defaultValue = "createdAt") String sortFieldName,
+                                                               @RequestParam(name = "sortOrder", defaultValue = "ASC") Sort.Direction sortDirection) {
+        return ResponseEntity.ok(service.getAllPage(PageRequest.of(pageNum, pageSize, Sort.by(sortDirection, sortFieldName))));
     }
 
     @GetMapping("/{id}")
@@ -51,7 +55,7 @@ public abstract class GenericController<T_REQ, T_RES, T_ENTITY extends GenericEn
     }
 
     @PostMapping("/search")
-    public ResponseEntity<GenericPaginationRes<T_RES>> search(@RequestBody SearchFilter searchFilter, @RequestParam(name = "pageNum", defaultValue = "0") int pageNum, @RequestParam(name = "pageSize", defaultValue = "20") int pageSize) {
+    public ResponseEntity<GenericPaginationRes<T_RES>> search(@Valid @RequestBody SearchFilter searchFilter, @RequestParam(name = "pageNumber", defaultValue = "0") int pageNum, @RequestParam(name = "pageSize", defaultValue = "20") int pageSize) {
         return ResponseEntity.ok(service.search(searchFilter, PageRequest.of(pageNum, pageSize, Sort.by(Sort.Direction.fromString(Optional.ofNullable(searchFilter.getSortOrder()).orElse("ASC")), Optional.ofNullable(searchFilter.getSortBy()).orElse("createdAt")))));
     }
 }
