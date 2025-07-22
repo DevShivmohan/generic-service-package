@@ -50,12 +50,12 @@ tasks.named('test') {
 }
 
 publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
-            artifactId = 'generic-service'
-        }
-    }
+//    publications {
+//        mavenJava(MavenPublication) {
+//            from components.java
+//            artifactId = 'generic-service'
+//        }
+//    }
 
     repositories {
         maven {
