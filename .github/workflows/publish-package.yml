@@ -23,7 +23,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Publish to GitHub Packages
-        run: ./gradlew clean compileJava build publish
+        run: ./gradlew publish
         env:
           USERNAME: ${{ secrets.GITHUB_ACTOR }}
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
