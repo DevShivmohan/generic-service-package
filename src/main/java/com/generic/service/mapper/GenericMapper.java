@@ -1,18 +1,19 @@
 package com.generic.service.mapper;
 
-import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.config.Configuration;
+import org.modelmapper.config.Configuration.AccessLevel;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class GenericMapper {
     private static final ModelMapper modelMapper = new ModelMapper();
 
     static {
         modelMapper.getConfiguration()
                 .setFieldMatchingEnabled(true)
-                .setFieldAccessLevel(Configuration.AccessLevel.PRIVATE);
+                .setFieldAccessLevel(AccessLevel.PUBLIC)
+                .setMethodAccessLevel(AccessLevel.PUBLIC)
+                .setSkipNullEnabled(true);
     }
 
     /**
