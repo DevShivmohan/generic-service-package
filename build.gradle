@@ -21,6 +21,14 @@ bootJar {
     archiveClassifier.set("exec")
 }
 
+jar {
+    enabled = true
+    archiveBaseName.set("generic-service")
+    archiveVersion.set("1.0.0")
+    archiveClassifier.set("")
+}
+
+
 configurations {
     compileOnly {
         extendsFrom annotationProcessor

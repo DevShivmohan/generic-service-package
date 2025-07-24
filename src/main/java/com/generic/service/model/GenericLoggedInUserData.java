@@ -17,7 +17,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Accessors(chain = true)
 @Builder
-public class GenericLoggedInUserModel {
+public class GenericLoggedInUserData {
     private UUID userId;
 
     private UUID tenantId;
