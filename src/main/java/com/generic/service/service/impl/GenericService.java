@@ -32,9 +32,9 @@ public abstract class GenericService<T_REQ, T_RES, T_ENTITY extends GenericEntit
 
     private final GenericRepository<T_ENTITY> repository;
 
-    private final Class<T_REQ> tReqClass;
-
     private final Class<T_RES> tResClass;
+
+    private final Class<T_ENTITY> tEntityClass;
 
     public GenericPaginationRes<T_RES> getAllPage(Pageable pageable) {
         final Page<T_ENTITY> tEntityPage = repository.findByDeletedFalse(pageable);
@@ -129,15 +129,16 @@ public abstract class GenericService<T_REQ, T_RES, T_ENTITY extends GenericEntit
     }
 
     @Transactional
-    public T_RES update(T_ENTITY updated, UUID id) {
+    public T_RES update(T_REQ updateReq, UUID id) {
         getInternal(id);
-        updated.setId(id);
-        return GenericMapper.map(repository.saveAndFlush(updated), tResClass);
+        final T_ENTITY tEntity = GenericMapper.map(updateReq, tEntityClass);
+        tEntity.setId(id);
+        return GenericMapper.map(repository.saveAndFlush(tEntity), tResClass);
     }
 
     @Transactional
-    public T_RES create(T_ENTITY newDomain) {
-        return GenericMapper.map(repository.saveAndFlush(newDomain), tResClass);
+    public T_RES create(T_REQ createReq) {
+        return GenericMapper.map(repository.saveAndFlush(GenericMapper.map(createReq, tEntityClass)), tResClass);
     }
 
     @Transactional

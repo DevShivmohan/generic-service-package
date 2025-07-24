@@ -40,13 +40,13 @@ public abstract class GenericController<T_REQ, T_RES, T_ENTITY extends GenericEn
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<T_RES> update(@RequestBody T_ENTITY updated, @PathVariable("id") UUID id) {
-        return ResponseEntity.ok(service.update(updated, id));
+    public ResponseEntity<T_RES> update(@Valid @RequestBody T_REQ updateReq, @PathVariable("id") UUID id) {
+        return ResponseEntity.ok(service.update(updateReq, id));
     }
 
     @PostMapping
-    public ResponseEntity<T_RES> create(@RequestBody T_ENTITY created) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(created));
+    public ResponseEntity<T_RES> create(@Valid @RequestBody T_REQ request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(request));
     }
 
     @DeleteMapping("/{id}")
