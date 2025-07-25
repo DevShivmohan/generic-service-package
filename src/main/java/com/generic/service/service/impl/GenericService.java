@@ -49,66 +49,6 @@ public abstract class GenericService<T_REQ, T_RES, T_ENTITY extends GenericEntit
                 .build();
     }
 
-    private Specification<T_ENTITY> buildSpecification(List<SearchFilterCriteria> criteriaList) {
-        return (Root<T_ENTITY> root, CriteriaQuery<?> query, CriteriaBuilder cb) -> {
-            final List<Predicate> predicates = new ArrayList<>();
-            for (SearchFilterCriteria criteria : criteriaList) {
-                String key = criteria.getFilterKey();
-                List<Object> values = criteria.getValue();
-                String op = criteria.getOperation().toLowerCase();
-                Path<Object> path = root.get(key);
-                switch (op) {
-                    case "=", "eq":
-                        predicates.add(cb.equal(path, values.get(0)));
-                        break;
-
-                    case "!=", "ne":
-                        predicates.add(cb.notEqual(path, values.get(0)));
-                        break;
-                    case ">", "gt":
-                        predicates.add(cb.greaterThan(path.as(Comparable.class), (Comparable) values.get(0)));
-                        break;
-
-                    case "<", "lt":
-                        predicates.add(cb.lessThan(path.as(Comparable.class), (Comparable) values.get(0)));
-                        break;
-
-                    case ">=", "gte":
-                        predicates.add(cb.greaterThanOrEqualTo(path.as(Comparable.class), (Comparable) values.get(0)));
-                        break;
-
-                    case "<=", "lte":
-                        predicates.add(cb.lessThanOrEqualTo(path.as(Comparable.class), (Comparable) values.get(0)));
-                        break;
-
-                    case "like":
-                        predicates.add(cb.like(cb.lower(path.as(String.class)), "%" + values.get(0).toString().toLowerCase() + "%"));
-                        break;
-
-                    case "in":
-                        CriteriaBuilder.In<Object> inClause = cb.in(path);
-                        for (Object val : values) {
-                            inClause.value(val);
-                        }
-                        predicates.add(inClause);
-                        break;
-
-                    case "between":
-                        if (values.size() >= 2 && values.get(0) instanceof Comparable && values.get(1) instanceof Comparable) {
-                            predicates.add(cb.between(path.as(Comparable.class), (Comparable) values.get(0), (Comparable) values.get(1)));
-                        }
-                        break;
-
-                    default:
-                        throw new UnsupportedOperationException("Unsupported operation: " + op);
-                }
-            }
-
-            return cb.and(predicates.toArray(new Predicate[0]));
-        };
-    }
-
-
     public GenericPaginationRes<T_RES> search(SearchFilter searchFilter, Pageable pageable) {
         final Page<T_ENTITY> tEntityPage = repository.findAll(buildSpecification(searchFilter.getSearchCriteria()), PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), searchFilter.getSortBy() != null && searchFilter.getSortOrder() != null ? Sort.by(Sort.Direction.fromString(searchFilter.getSortOrder()), searchFilter.getSortBy()) : Sort.unsorted()));
         return GenericPaginationRes.<T_RES>builder()
@@ -167,6 +107,65 @@ public abstract class GenericService<T_REQ, T_RES, T_ENTITY extends GenericEntit
     @Transactional
     public void deleteAll() {
         repository.deleteAll();
+    }
+
+    private Specification<T_ENTITY> buildSpecification(List<SearchFilterCriteria> criteriaList) {
+        return (Root<T_ENTITY> root, CriteriaQuery<?> query, CriteriaBuilder cb) -> {
+            final List<Predicate> predicates = new ArrayList<>();
+            for (SearchFilterCriteria criteria : criteriaList) {
+                String key = criteria.getFilterKey();
+                List<Object> values = criteria.getValue();
+                String op = criteria.getOperation().toLowerCase();
+                Path<Object> path = root.get(key);
+                switch (op) {
+                    case "=", "eq":
+                        predicates.add(cb.equal(path, values.get(0)));
+                        break;
+
+                    case "!=", "ne":
+                        predicates.add(cb.notEqual(path, values.get(0)));
+                        break;
+                    case ">", "gt":
+                        predicates.add(cb.greaterThan(path.as(Comparable.class), (Comparable) values.get(0)));
+                        break;
+
+                    case "<", "lt":
+                        predicates.add(cb.lessThan(path.as(Comparable.class), (Comparable) values.get(0)));
+                        break;
+
+                    case ">=", "gte":
+                        predicates.add(cb.greaterThanOrEqualTo(path.as(Comparable.class), (Comparable) values.get(0)));
+                        break;
+
+                    case "<=", "lte":
+                        predicates.add(cb.lessThanOrEqualTo(path.as(Comparable.class), (Comparable) values.get(0)));
+                        break;
+
+                    case "like":
+                        predicates.add(cb.like(cb.lower(path.as(String.class)), "%" + values.get(0).toString().toLowerCase() + "%"));
+                        break;
+
+                    case "in":
+                        CriteriaBuilder.In<Object> inClause = cb.in(path);
+                        for (Object val : values) {
+                            inClause.value(val);
+                        }
+                        predicates.add(inClause);
+                        break;
+
+                    case "between":
+                        if (values.size() >= 2 && values.get(0) instanceof Comparable && values.get(1) instanceof Comparable) {
+                            predicates.add(cb.between(path.as(Comparable.class), (Comparable) values.get(0), (Comparable) values.get(1)));
+                        }
+                        break;
+
+                    default:
+                        throw new UnsupportedOperationException("Unsupported operation: " + op);
+                }
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
     }
 
 }
