@@ -1,10 +1,10 @@
 package com.generic.service.service.impl;
 
 import com.generic.service.dto.GenericPaginationRes;
+import com.generic.service.dto.SearchFilter;
+import com.generic.service.dto.SearchFilterCriteria;
 import com.generic.service.entity.GenericEntity;
 import com.generic.service.exception.GenericException;
-import com.generic.service.filter.SearchFilter;
-import com.generic.service.filter.SearchFilterCriteria;
 import com.generic.service.mapper.GenericMapper;
 import com.generic.service.repository.GenericRepository;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Slf4j
@@ -122,6 +123,21 @@ public abstract class GenericService<T_REQ, T_RES, T_ENTITY extends GenericEntit
 
     public T_RES getById(UUID id) {
         return GenericMapper.map(repository.findByIdAndDeletedFalse(id).orElseThrow(() -> new GenericException(HttpStatus.NOT_FOUND.value(), "Record not found with id " + id)), tResClass);
+    }
+
+    public GenericPaginationRes<T_RES> getAllByTenantIdAndWithPageable(UUID tenantId, Pageable pageable) {
+        if (Objects.isNull(tenantId)) {
+            throw new GenericException(HttpStatus.BAD_REQUEST.value(), "Tenant id must not be null");
+        }
+        final Page<T_ENTITY> tEntityPage = repository.findAllByTenantIdAndDeletedFalse(tenantId, pageable);
+        return GenericPaginationRes.<T_RES>builder()
+                .totalPages(tEntityPage.getTotalPages())
+                .totalElements(tEntityPage.getNumberOfElements())
+                .pageSize(tEntityPage.getSize())
+                .pageNumber(tEntityPage.getNumber())
+                .lastPage(tEntityPage.isLast())
+                .content(tEntityPage.getContent().stream().map(tEntity -> GenericMapper.map(tEntity, tResClass)).toList())
+                .build();
     }
 
     private T_ENTITY getInternal(UUID id) {

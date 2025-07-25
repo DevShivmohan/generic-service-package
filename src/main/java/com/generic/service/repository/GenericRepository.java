@@ -16,4 +16,6 @@ public interface GenericRepository<T_ENTITY extends GenericEntity> extends JpaRe
     Optional<T_ENTITY> findByIdAndDeletedFalse(UUID id);
 
     Page<T_ENTITY> findByDeletedFalse(Pageable pageable);
+
+    Page<T_ENTITY> findAllByTenantIdAndDeletedFalse(UUID tenantId, Pageable pageable);
 }

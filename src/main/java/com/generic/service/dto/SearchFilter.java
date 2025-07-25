@@ -1,4 +1,4 @@
-package com.generic.service.filter;
+package com.generic.service.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

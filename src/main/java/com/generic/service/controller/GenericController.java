@@ -1,8 +1,8 @@
 package com.generic.service.controller;
 
 import com.generic.service.dto.GenericPaginationRes;
+import com.generic.service.dto.SearchFilter;
 import com.generic.service.entity.GenericEntity;
-import com.generic.service.filter.SearchFilter;
 import com.generic.service.service.impl.GenericService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
