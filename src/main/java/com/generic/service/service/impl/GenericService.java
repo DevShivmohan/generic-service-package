@@ -7,6 +7,7 @@ import com.generic.service.entity.GenericEntity;
 import com.generic.service.exception.GenericException;
 import com.generic.service.mapper.GenericMapper;
 import com.generic.service.repository.GenericRepository;
+import com.generic.service.util.RequestContext;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Path;
@@ -65,11 +66,17 @@ public abstract class GenericService<T_REQ, T_RES, T_ENTITY extends GenericEntit
         return GenericMapper.map(repository.findByIdAndDeletedFalse(id).orElseThrow(() -> new GenericException(HttpStatus.NOT_FOUND.value(), "Record not found with id " + id)), tResClass);
     }
 
-    public GenericPaginationRes<T_RES> getAllByTenantIdAndWithPageable(UUID tenantId, Pageable pageable) {
-        if (Objects.isNull(tenantId)) {
+    /**
+     * Gets current logged-in user tenant and then fetch records accordingly
+     *
+     * @param pageable
+     * @return
+     */
+    public GenericPaginationRes<T_RES> getAllByTenantIdAndWithPageable(Pageable pageable) {
+        if (Objects.isNull(RequestContext.getUserFromRequestContextHolder().getTenantId())) {
             throw new GenericException(HttpStatus.BAD_REQUEST.value(), "Tenant id must not be null");
         }
-        final Page<T_ENTITY> tEntityPage = repository.findAllByTenantIdAndDeletedFalse(tenantId, pageable);
+        final Page<T_ENTITY> tEntityPage = repository.findAllByTenantIdAndDeletedFalse(RequestContext.getUserFromRequestContextHolder().getTenantId(), pageable);
         return GenericPaginationRes.<T_RES>builder()
                 .totalPages(tEntityPage.getTotalPages())
                 .totalElements(tEntityPage.getNumberOfElements())
