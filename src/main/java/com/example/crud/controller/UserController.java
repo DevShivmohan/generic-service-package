@@ -33,8 +33,8 @@ public class UserController extends GenericController<UserReqDto, UserResDto, Us
 
     @GetMapping("/tenant-member")
     public ResponseEntity<GenericPaginationRes<UserResDto>> getPageder(@RequestParam(name = "pageNumber",defaultValue = "0") int pageNum, @RequestParam(name = "pageSize",defaultValue = "20") int pageSize, @RequestParam(name = "sortBy",defaultValue = "createdAt") String sortFieldName, @RequestParam(name = "sortOrder",defaultValue = "ASC") Sort.Direction sortDirection) {
-        RequestContext.setUserFromRequestContextHolder(GenericLoggedInUserData.builder().userId(UUID.fromString("1f0665a9-733f-6606-8a89-61f81495ddb4")).tenantId(UUID.fromString("1f0665a9-733f-6606-8a89-61f81495ddb4")).build());
-        return ResponseEntity.ok(this.userService.getAllByTenantIdAndWithPageable(RequestContext.getUserFromRequestContextHolder().getTenantId(), PageRequest.of(pageNum, pageSize, Sort.by(sortDirection, new String[]{sortFieldName}))));
+//        RequestContext.setUserFromRequestContextHolder(GenericLoggedInUserData.builder().userId(UUID.fromString("1f0665a9-733f-6606-8a89-61f81495ddb4")).tenantId(UUID.fromString("1f0665a9-733f-6606-8a89-61f81495ddb4")).build());
+        return ResponseEntity.ok(this.userService.getAllByTenantIdAndWithPageable(null, PageRequest.of(pageNum, pageSize, Sort.by(sortDirection, new String[]{sortFieldName}))));
     }
 
 
