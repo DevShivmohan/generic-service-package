@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: crud-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/crud
+    username: postgres
+    password: root
+    driver-class-name: org.postgresql.Driver
+  hikari:
+    connectionTimeout: 20000
+    maximumPoolSize: 5
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+      format_sql: true
+      use_sql_comments: true
+    show-sql: false
