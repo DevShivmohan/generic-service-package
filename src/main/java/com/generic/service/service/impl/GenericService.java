@@ -67,16 +67,17 @@ public abstract class GenericService<T_REQ, T_RES, T_ENTITY extends GenericEntit
     }
 
     /**
-     * Gets current logged-in user tenant and then fetch records accordingly
+     * Gets current logged-in user tenant if @param useThisTenantIdIfNotNull is null else current logged-in tenant and then fetch records accordingly
      *
+     * @param useThisTenantIdIfNotNull
      * @param pageable
      * @return
      */
-    public GenericPaginationRes<T_RES> getAllByTenantIdAndWithPageable(Pageable pageable) {
-        if (Objects.isNull(RequestContext.getUserFromRequestContextHolder().getTenantId())) {
+    public GenericPaginationRes<T_RES> getAllByTenantIdAndWithPageable(UUID useThisTenantIdIfNotNull, Pageable pageable) {
+        if (Objects.isNull(useThisTenantIdIfNotNull) && Objects.isNull(RequestContext.getUserFromRequestContextHolder().getTenantId())) {
             throw new GenericException(HttpStatus.BAD_REQUEST.value(), "Tenant id must not be null");
         }
-        final Page<T_ENTITY> tEntityPage = repository.findAllByTenantIdAndDeletedFalse(RequestContext.getUserFromRequestContextHolder().getTenantId(), pageable);
+        final Page<T_ENTITY> tEntityPage = repository.findAllByTenantIdAndDeletedFalse(Objects.nonNull(useThisTenantIdIfNotNull) ? useThisTenantIdIfNotNull : RequestContext.getUserFromRequestContextHolder().getTenantId(), pageable);
         return GenericPaginationRes.<T_RES>builder()
                 .totalPages(tEntityPage.getTotalPages())
                 .totalElements(tEntityPage.getNumberOfElements())
