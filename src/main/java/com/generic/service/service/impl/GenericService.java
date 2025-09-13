@@ -71,6 +71,10 @@ public abstract class GenericService<T_REQ, T_RES, T_ENTITY extends GenericEntit
         return repository.findByField(fieldName, value);
     }
 
+    public List<T_ENTITY> getAllByField(String fieldName, Object value) {
+        return repository.findAllByField(fieldName, value);
+    }
+
     /**
      * Gets current logged-in user tenant if @param useThisTenantIdIfNotNull is null else current logged-in tenant and then fetch records accordingly
      *

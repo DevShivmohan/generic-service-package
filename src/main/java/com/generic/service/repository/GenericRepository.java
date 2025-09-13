@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.NoRepositoryBean;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -14,6 +15,10 @@ import java.util.UUID;
 public interface GenericRepository<T_ENTITY extends GenericEntity> extends JpaRepository<T_ENTITY, UUID>, JpaSpecificationExecutor<T_ENTITY> {
     default Optional<T_ENTITY> findByField(String fieldName, Object fieldValue) {
         return findOne(((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(fieldName), fieldValue)));
+    }
+
+    default List<T_ENTITY> findAllByField(String fieldName, Object fieldValue) {
+        return findAll(((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(fieldName), fieldValue)));
     }
 
     Optional<T_ENTITY> findByIdAndDeletedFalse(UUID id);
