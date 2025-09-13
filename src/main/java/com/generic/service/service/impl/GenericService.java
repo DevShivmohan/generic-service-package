@@ -106,15 +106,22 @@ public abstract class GenericService<T_REQ, T_RES, T_ENTITY extends GenericEntit
     }
 
     @Transactional
-    public T_RES delete(UUID id) {
+    public List<T_RES> create(List<T_REQ> createReqList) {
+        return GenericMapper.mapList(repository.saveAllAndFlush(GenericMapper.mapList(createReqList, tEntityClass)), tResClass);
+    }
+
+    @Transactional
+    public T_RES deleteSoft(UUID id) {
         final T_ENTITY dbEntity = getInternal(id);
         dbEntity.setDeleted(true);
         return GenericMapper.map(repository.saveAndFlush(dbEntity), tResClass);
     }
 
     @Transactional
-    public void deleteAll() {
-        repository.deleteAll();
+    public T_RES deleteHard(UUID id) {
+        final T_ENTITY dbEntity = getInternal(id);
+        repository.delete(dbEntity);
+        return GenericMapper.map(repository.saveAndFlush(dbEntity), tResClass);
     }
 
     private Specification<T_ENTITY> buildSpecification(List<SearchFilterCriteria> criteriaList) {

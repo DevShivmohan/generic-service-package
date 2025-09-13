@@ -51,7 +51,7 @@ public abstract class GenericController<T_REQ, T_RES, T_ENTITY extends GenericEn
 
     @DeleteMapping("/{id}")
     public ResponseEntity<T_RES> delete(@PathVariable UUID id) {
-        return ResponseEntity.ok(service.delete(id));
+        return ResponseEntity.ok(service.deleteHard(id));
     }
 
     @PostMapping("/search")
