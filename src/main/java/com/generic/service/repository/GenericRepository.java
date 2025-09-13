@@ -12,6 +12,9 @@ import java.util.UUID;
 
 @NoRepositoryBean
 public interface GenericRepository<T_ENTITY extends GenericEntity> extends JpaRepository<T_ENTITY, UUID>, JpaSpecificationExecutor<T_ENTITY> {
+    default Optional<T_ENTITY> findByField(String fieldName, Object fieldValue) {
+        return findOne(((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(fieldName), fieldValue)));
+    }
 
     Optional<T_ENTITY> findByIdAndDeletedFalse(UUID id);
 

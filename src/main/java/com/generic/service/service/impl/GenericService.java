@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -64,6 +65,10 @@ public abstract class GenericService<T_REQ, T_RES, T_ENTITY extends GenericEntit
 
     public T_RES getById(UUID id) {
         return GenericMapper.map(repository.findByIdAndDeletedFalse(id).orElseThrow(() -> new GenericException(HttpStatus.NOT_FOUND.value(), "Record not found with id " + id)), tResClass);
+    }
+
+    public Optional<T_ENTITY> getByField(String fieldName, Object value) {
+        return repository.findByField(fieldName, value);
     }
 
     /**
