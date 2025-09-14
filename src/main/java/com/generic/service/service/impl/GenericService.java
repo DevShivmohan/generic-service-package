@@ -114,7 +114,7 @@ public abstract class GenericService<T_REQ, T_RES, T_ENTITY extends GenericEntit
     public T_RES deleteHard(UUID id) {
         final T_ENTITY dbEntity = getInternal(id);
         repository.delete(dbEntity);
-        return GenericMapper.map(repository.saveAndFlush(dbEntity), tResClass);
+        return GenericMapper.map(dbEntity, tResClass);
     }
 
     private Specification<T_ENTITY> buildSpecification(List<SearchFilterCriteria> criteriaList) {
