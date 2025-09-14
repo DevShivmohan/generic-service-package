@@ -41,26 +41,12 @@ public abstract class GenericService<T_REQ, T_RES, T_ENTITY extends GenericEntit
 
     public GenericPaginationRes<T_RES> getAllPage(Pageable pageable) {
         final Page<T_ENTITY> tEntityPage = repository.findByDeletedFalse(pageable);
-        return GenericPaginationRes.<T_RES>builder()
-                .totalPages(tEntityPage.getTotalPages())
-                .totalElements(tEntityPage.getNumberOfElements())
-                .pageSize(tEntityPage.getSize())
-                .pageNumber(tEntityPage.getNumber())
-                .lastPage(tEntityPage.isLast())
-                .content(tEntityPage.getContent().stream().map(tEntity -> GenericMapper.map(tEntity, tResClass)).toList())
-                .build();
+        return GenericPaginationRes.<T_RES>builder().totalPages(tEntityPage.getTotalPages()).totalElements(tEntityPage.getNumberOfElements()).pageSize(tEntityPage.getSize()).pageNumber(tEntityPage.getNumber()).lastPage(tEntityPage.isLast()).content(tEntityPage.getContent().stream().map(tEntity -> GenericMapper.map(tEntity, tResClass)).toList()).build();
     }
 
     public GenericPaginationRes<T_RES> search(SearchFilter searchFilter, Pageable pageable) {
         final Page<T_ENTITY> tEntityPage = repository.findAll(buildSpecification(searchFilter.getSearchCriteria()), PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), searchFilter.getSortBy() != null && searchFilter.getSortOrder() != null ? Sort.by(Sort.Direction.fromString(searchFilter.getSortOrder()), searchFilter.getSortBy()) : Sort.unsorted()));
-        return GenericPaginationRes.<T_RES>builder()
-                .totalPages(tEntityPage.getTotalPages())
-                .totalElements(tEntityPage.getNumberOfElements())
-                .pageSize(tEntityPage.getSize())
-                .pageNumber(tEntityPage.getNumber())
-                .lastPage(tEntityPage.isLast())
-                .content(tEntityPage.getContent().stream().map(tEntity -> GenericMapper.map(tEntity, tResClass)).toList())
-                .build();
+        return GenericPaginationRes.<T_RES>builder().totalPages(tEntityPage.getTotalPages()).totalElements(tEntityPage.getNumberOfElements()).pageSize(tEntityPage.getSize()).pageNumber(tEntityPage.getNumber()).lastPage(tEntityPage.isLast()).content(tEntityPage.getContent().stream().map(tEntity -> GenericMapper.map(tEntity, tResClass)).toList()).build();
     }
 
     public T_RES getById(UUID id) {
@@ -87,14 +73,7 @@ public abstract class GenericService<T_REQ, T_RES, T_ENTITY extends GenericEntit
             throw new GenericException(HttpStatus.BAD_REQUEST.value(), "Tenant id must not be null");
         }
         final Page<T_ENTITY> tEntityPage = repository.findAllByTenantIdAndDeletedFalse(Objects.nonNull(useThisTenantIdIfNotNull) ? useThisTenantIdIfNotNull : RequestContext.getUserFromRequestContextHolder().getTenantId(), pageable);
-        return GenericPaginationRes.<T_RES>builder()
-                .totalPages(tEntityPage.getTotalPages())
-                .totalElements(tEntityPage.getNumberOfElements())
-                .pageSize(tEntityPage.getSize())
-                .pageNumber(tEntityPage.getNumber())
-                .lastPage(tEntityPage.isLast())
-                .content(tEntityPage.getContent().stream().map(tEntity -> GenericMapper.map(tEntity, tResClass)).toList())
-                .build();
+        return GenericPaginationRes.<T_RES>builder().totalPages(tEntityPage.getTotalPages()).totalElements(tEntityPage.getNumberOfElements()).pageSize(tEntityPage.getSize()).pageNumber(tEntityPage.getNumber()).lastPage(tEntityPage.isLast()).content(tEntityPage.getContent().stream().map(tEntity -> GenericMapper.map(tEntity, tResClass)).toList()).build();
     }
 
     private T_ENTITY getInternal(UUID id) {
@@ -112,6 +91,11 @@ public abstract class GenericService<T_REQ, T_RES, T_ENTITY extends GenericEntit
     @Transactional
     public T_RES create(T_REQ createReq) {
         return GenericMapper.map(repository.saveAndFlush(GenericMapper.map(createReq, tEntityClass)), tResClass);
+    }
+
+    @Transactional
+    public T_RES create(T_ENTITY createReq) {
+        return GenericMapper.map(repository.saveAndFlush(createReq), tResClass);
     }
 
     @Transactional
