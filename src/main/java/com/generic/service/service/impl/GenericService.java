@@ -7,7 +7,7 @@ import com.generic.service.entity.GenericEntity;
 import com.generic.service.exception.GenericException;
 import com.generic.service.mapper.GenericMapper;
 import com.generic.service.repository.GenericRepository;
-import com.generic.service.util.RequestContext;
+import com.generic.service.service.RequestContext;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Path;
@@ -39,6 +39,8 @@ public abstract class GenericService<T_REQ, T_RES, T_ENTITY extends GenericEntit
 
     private final Class<T_ENTITY> tEntityClass;
 
+    private final RequestContext requestContext;
+
     public GenericPaginationRes<T_RES> getAllPage(Pageable pageable) {
         final Page<T_ENTITY> tEntityPage = repository.findByDeletedFalse(pageable);
         return GenericPaginationRes.<T_RES>builder().totalPages(tEntityPage.getTotalPages()).totalElements(tEntityPage.getNumberOfElements()).pageSize(tEntityPage.getSize()).pageNumber(tEntityPage.getNumber()).lastPage(tEntityPage.isLast()).content(tEntityPage.getContent().stream().map(tEntity -> GenericMapper.map(tEntity, tResClass)).toList()).build();
@@ -69,10 +71,10 @@ public abstract class GenericService<T_REQ, T_RES, T_ENTITY extends GenericEntit
      * @return
      */
     public GenericPaginationRes<T_RES> getAllByTenantIdAndWithPageable(UUID useThisTenantIdIfNotNull, Pageable pageable) {
-        if (Objects.isNull(useThisTenantIdIfNotNull) && Objects.isNull(RequestContext.getUserFromRequestContextHolder().getTenantId())) {
+        if (Objects.isNull(useThisTenantIdIfNotNull) && Objects.isNull(requestContext.getUserFromRequestContextHolder().getTenantId())) {
             throw new GenericException(HttpStatus.BAD_REQUEST.value(), "Tenant id must not be null");
         }
-        final Page<T_ENTITY> tEntityPage = repository.findAllByTenantIdAndDeletedFalse(Objects.nonNull(useThisTenantIdIfNotNull) ? useThisTenantIdIfNotNull : RequestContext.getUserFromRequestContextHolder().getTenantId(), pageable);
+        final Page<T_ENTITY> tEntityPage = repository.findAllByTenantIdAndDeletedFalse(Objects.nonNull(useThisTenantIdIfNotNull) ? useThisTenantIdIfNotNull : requestContext.getUserFromRequestContextHolder().getTenantId(), pageable);
         return GenericPaginationRes.<T_RES>builder().totalPages(tEntityPage.getTotalPages()).totalElements(tEntityPage.getNumberOfElements()).pageSize(tEntityPage.getSize()).pageNumber(tEntityPage.getNumber()).lastPage(tEntityPage.isLast()).content(tEntityPage.getContent().stream().map(tEntity -> GenericMapper.map(tEntity, tResClass)).toList()).build();
     }
 

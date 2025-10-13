@@ -2,7 +2,9 @@ package com.generic.service.config;
 
 import com.generic.service.service.GenericTimeCreator;
 import com.generic.service.service.IdGenerationStrategy;
+import com.generic.service.service.RequestContext;
 import com.generic.service.service.impl.DefaultIdGenerationStrategy;
+import com.generic.service.service.impl.DefaultRequestContext;
 import com.generic.service.service.impl.DefaultTimeCreator;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -21,6 +23,12 @@ public class SpringConfig {
     @ConditionalOnMissingBean(GenericTimeCreator.class)
     public GenericTimeCreator genericTimeCreator() {
         return new DefaultTimeCreator();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(RequestContext.class)
+    public RequestContext genericRequestContext() {
+        return new DefaultRequestContext();
     }
 
 }
