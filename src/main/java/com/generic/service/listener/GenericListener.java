@@ -20,18 +20,17 @@ public class GenericListener {
 
     @PrePersist
     protected void beforePersist(GenericEntity genericEntity) {
-        genericEntity.setId(idGenerationStrategy.generateId());
+        genericEntity.setUuid(idGenerationStrategy.generateId());
         genericEntity.setCreatedAt(genericTimeCreator.createLocalDateTime());
         genericEntity.setUpdatedAt(genericTimeCreator.createLocalDateTime());
-        genericEntity.setCreatedBy(requestContext.getUserFromRequestContextHolder().getUserId());
-        genericEntity.setUpdatedBy(requestContext.getUserFromRequestContextHolder().getUserId());
-        genericEntity.setTenantId(requestContext.getUserFromRequestContextHolder().getTenantId());
+        genericEntity.setCreatedBy(requestContext.getUserFromRequestContextHolder().getUserId() == null ? null : requestContext.getUserFromRequestContextHolder().getUserId().toString());
+        genericEntity.setUpdatedBy(requestContext.getUserFromRequestContextHolder().getUserId() == null ? null : requestContext.getUserFromRequestContextHolder().getUserId().toString());
     }
 
     @PreUpdate
     protected void beforeUpdate(GenericEntity genericEntity) {
         genericEntity.setUpdatedAt(genericTimeCreator.createLocalDateTime());
-        genericEntity.setUpdatedBy(requestContext.getUserFromRequestContextHolder().getUserId());
+        genericEntity.setUpdatedBy(requestContext.getUserFromRequestContextHolder().getUserId() == null ? null : requestContext.getUserFromRequestContextHolder().getUserId().toString());
     }
 
 }

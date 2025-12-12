@@ -21,9 +21,7 @@ public interface GenericRepository<T_ENTITY extends GenericEntity> extends JpaRe
         return findAll(((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(fieldName), fieldValue)));
     }
 
-    Optional<T_ENTITY> findByIdAndDeletedFalse(UUID id);
+    Optional<T_ENTITY> findByUuidAndDeletedFalse(UUID id);
 
     Page<T_ENTITY> findByDeletedFalse(Pageable pageable);
-
-    Page<T_ENTITY> findAllByTenantIdAndDeletedFalse(UUID tenantId, Pageable pageable);
 }

@@ -31,11 +31,8 @@ import java.util.UUID;
 @EntityListeners(GenericListener.class)
 public abstract class GenericEntity implements Serializable {
     @Id
-    @Column(name = "id", columnDefinition = "uuid", nullable = false, unique = true, updatable = false)
-    private UUID id;
-
-    @Column(columnDefinition = "uuid")
-    private UUID tenantId;
+    @Column(name = "uuid", columnDefinition = "uuid", nullable = false, unique = true, updatable = false)
+    private UUID uuid;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -43,11 +40,10 @@ public abstract class GenericEntity implements Serializable {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    @Column(columnDefinition = "uuid")
-    private UUID updatedBy;
+    private String updatedBy;
 
-    @Column(updatable = false, columnDefinition = "uuid")
-    private UUID createdBy;
+    @Column(updatable = false)
+    private String createdBy;
 
     @JsonIgnore
     @Builder.Default

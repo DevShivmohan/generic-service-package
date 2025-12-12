@@ -26,7 +26,7 @@ public abstract class GenericController<T_REQ, T_RES, T_ENTITY extends GenericEn
 
     private final GenericService<T_REQ, T_RES, T_ENTITY> service;
 
-    @GetMapping
+    @GetMapping("/v1")
     public ResponseEntity<GenericPaginationRes<T_RES>> getPage(@RequestParam(name = "pageNumber", defaultValue = "0") int pageNum,
                                                                @RequestParam(name = "pageSize", defaultValue = "20") int pageSize,
                                                                @RequestParam(name = "sortBy", defaultValue = "createdAt") String sortFieldName,
@@ -34,27 +34,27 @@ public abstract class GenericController<T_REQ, T_RES, T_ENTITY extends GenericEn
         return ResponseEntity.ok(service.getAllPage(PageRequest.of(pageNum, pageSize, Sort.by(sortDirection, sortFieldName))));
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/v1/{id}")
     public ResponseEntity<T_RES> getOne(@PathVariable UUID id) {
         return ResponseEntity.ok(service.getById(id));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/v1/{id}")
     public ResponseEntity<T_RES> update(@Valid @RequestBody T_REQ updateReq, @PathVariable("id") UUID id) {
         return ResponseEntity.ok(service.update(updateReq, id));
     }
 
-    @PostMapping
+    @PostMapping("/v1")
     public ResponseEntity<T_RES> create(@Valid @RequestBody T_REQ request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.create(request));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/v1/{id}")
     public ResponseEntity<T_RES> delete(@PathVariable UUID id) {
         return ResponseEntity.ok(service.deleteHard(id));
     }
 
-    @PostMapping("/search")
+    @PostMapping("/v1/search")
     public ResponseEntity<GenericPaginationRes<T_RES>> search(@Valid @RequestBody SearchFilter searchFilter, @RequestParam(name = "pageNumber", defaultValue = "0") int pageNum, @RequestParam(name = "pageSize", defaultValue = "20") int pageSize) {
         return ResponseEntity.ok(service.search(searchFilter, PageRequest.of(pageNum, pageSize, Sort.by(Sort.Direction.fromString(Optional.ofNullable(searchFilter.getSortOrder()).orElse("ASC")), Optional.ofNullable(searchFilter.getSortBy()).orElse("createdAt")))));
     }
