@@ -9,10 +9,9 @@ import com.generic.service.mapper.GenericMapper;
 import com.generic.service.repository.GenericRepository;
 import com.generic.service.service.RequestContext;
 import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.From;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -39,32 +38,6 @@ public abstract class GenericService<T_REQ, T_RES, T_ENTITY extends GenericEntit
     private final Class<T_ENTITY> tEntityClass;
 
     private final RequestContext requestContext;
-
-    public GenericPaginationRes<T_RES> getAllPage(Pageable pageable) {
-        final Page<T_ENTITY> tEntityPage = repository.findByDeletedFalse(pageable);
-        return GenericPaginationRes.<T_RES>builder().totalPages(tEntityPage.getTotalPages()).totalElements(tEntityPage.getNumberOfElements()).pageSize(tEntityPage.getSize()).pageNumber(tEntityPage.getNumber()).lastPage(tEntityPage.isLast()).content(tEntityPage.getContent().stream().map(tEntity -> GenericMapper.map(tEntity, tResClass)).toList()).build();
-    }
-
-    public GenericPaginationRes<T_RES> search(SearchFilter searchFilter, Pageable pageable) {
-        final Page<T_ENTITY> tEntityPage = repository.findAll(buildSpecification(searchFilter.getSearchCriteria()), PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), searchFilter.getSortBy() != null && searchFilter.getSortOrder() != null ? Sort.by(Sort.Direction.fromString(searchFilter.getSortOrder()), searchFilter.getSortBy()) : Sort.unsorted()));
-        return GenericPaginationRes.<T_RES>builder().totalPages(tEntityPage.getTotalPages()).totalElements(tEntityPage.getNumberOfElements()).pageSize(tEntityPage.getSize()).pageNumber(tEntityPage.getNumber()).lastPage(tEntityPage.isLast()).content(tEntityPage.getContent().stream().map(tEntity -> GenericMapper.map(tEntity, tResClass)).toList()).build();
-    }
-
-    public T_RES getById(UUID id) {
-        return GenericMapper.map(repository.findByUuidAndDeletedFalse(id).orElseThrow(() -> new GenericException(HttpStatus.NOT_FOUND.value(), "Record not found with id " + id)), tResClass);
-    }
-
-    public Optional<T_ENTITY> getByField(String fieldName, Object value) {
-        return repository.findByField(fieldName, value);
-    }
-
-    public List<T_ENTITY> getAllByField(String fieldName, Object value) {
-        return repository.findAllByField(fieldName, value);
-    }
-
-    private T_ENTITY getInternal(UUID id) {
-        return repository.findByUuidAndDeletedFalse(id).orElseThrow(() -> new GenericException(HttpStatus.NOT_FOUND.value(), "Record not found with id " + id));
-    }
 
     @Transactional
     public T_RES update(T_REQ updateReq, UUID id) {
@@ -98,63 +71,103 @@ public abstract class GenericService<T_REQ, T_RES, T_ENTITY extends GenericEntit
         return GenericMapper.map(dbEntity, tResClass);
     }
 
-    private Specification<T_ENTITY> buildSpecification(List<SearchFilterCriteria> criteriaList) {
-        return (Root<T_ENTITY> root, CriteriaQuery<?> query, CriteriaBuilder cb) -> {
-            final List<Predicate> predicates = new ArrayList<>();
-            for (SearchFilterCriteria criteria : criteriaList) {
-                String key = criteria.getFilterKey();
-                List<Object> values = criteria.getValue();
-                String op = criteria.getOperation().toLowerCase();
-                Path<Object> path = root.get(key);
-                switch (op) {
-                    case "=", "eq":
-                        predicates.add(cb.equal(path, values.get(0)));
-                        break;
+    public GenericPaginationRes<T_RES> getAllPage(Pageable pageable) {
+        final Page<T_ENTITY> tEntityPage = repository.findByDeletedFalse(pageable);
+        return GenericPaginationRes.<T_RES>builder().totalPages(tEntityPage.getTotalPages()).totalElements(tEntityPage.getNumberOfElements()).pageSize(tEntityPage.getSize()).pageNumber(tEntityPage.getNumber()).lastPage(tEntityPage.isLast()).content(tEntityPage.getContent().stream().map(tEntity -> GenericMapper.map(tEntity, tResClass)).toList()).build();
+    }
 
-                    case "!=", "ne":
-                        predicates.add(cb.notEqual(path, values.get(0)));
-                        break;
-                    case ">", "gt":
-                        predicates.add(cb.greaterThan(path.as(Comparable.class), (Comparable) values.get(0)));
-                        break;
+    public GenericPaginationRes<T_RES> search(SearchFilter searchFilter, Pageable pageable) {
+        final Page<T_ENTITY> tEntityPage = repository.findAll(buildSpecification(searchFilter.getSearchCriteria()), PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), searchFilter.getSortBy() != null && searchFilter.getSortOrder() != null ? Sort.by(Sort.Direction.fromString(searchFilter.getSortOrder()), searchFilter.getSortBy()) : Sort.unsorted()));
+        return GenericPaginationRes.<T_RES>builder().totalPages(tEntityPage.getTotalPages()).totalElements(tEntityPage.getNumberOfElements()).pageSize(tEntityPage.getSize()).pageNumber(tEntityPage.getNumber()).lastPage(tEntityPage.isLast()).content(tEntityPage.getContent().stream().map(tEntity -> GenericMapper.map(tEntity, tResClass)).toList()).build();
+    }
 
-                    case "<", "lt":
-                        predicates.add(cb.lessThan(path.as(Comparable.class), (Comparable) values.get(0)));
-                        break;
+    public T_RES getById(UUID id) {
+        return GenericMapper.map(repository.findByUuidAndDeletedFalse(id).orElseThrow(() -> new GenericException(HttpStatus.NOT_FOUND.value(), "Record not found with id " + id)), tResClass);
+    }
 
-                    case ">=", "gte":
-                        predicates.add(cb.greaterThanOrEqualTo(path.as(Comparable.class), (Comparable) values.get(0)));
-                        break;
+    public Optional<T_ENTITY> getByField(String fieldName, Object value) {
+        return repository.findByField(fieldName, value);
+    }
 
-                    case "<=", "lte":
-                        predicates.add(cb.lessThanOrEqualTo(path.as(Comparable.class), (Comparable) values.get(0)));
-                        break;
+    public List<T_ENTITY> getAllByField(String fieldName, Object value) {
+        return repository.findAllByField(fieldName, value);
+    }
 
-                    case "like":
-                        predicates.add(cb.like(cb.lower(path.as(String.class)), "%" + values.get(0).toString().toLowerCase() + "%"));
-                        break;
+    private T_ENTITY getInternal(UUID id) {
+        return repository.findByUuidAndDeletedFalse(id).orElseThrow(() -> new GenericException(HttpStatus.NOT_FOUND.value(), "Record not found with id " + id));
+    }
 
-                    case "in":
-                        CriteriaBuilder.In<Object> inClause = cb.in(path);
-                        for (Object val : values) {
-                            inClause.value(val);
-                        }
-                        predicates.add(inClause);
-                        break;
-
-                    case "between":
-                        if (values.size() >= 2 && values.get(0) instanceof Comparable && values.get(1) instanceof Comparable) {
-                            predicates.add(cb.between(path.as(Comparable.class), (Comparable) values.get(0), (Comparable) values.get(1)));
-                        }
-                        break;
-
-                    default:
-                        throw new UnsupportedOperationException("Unsupported operation: " + op);
+    private Specification<T_ENTITY> buildSpecification(List<SearchFilterCriteria> filters) {
+        return (root, query, cb) -> {
+            if (filters == null || filters.isEmpty()) {
+                return cb.conjunction();
+            }
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(cb.isFalse(root.get("deleted")));
+            for (SearchFilterCriteria filter : filters) {
+                if (!filter.isValid()) continue;
+                Path<?> path = resolvePath(root, filter.getFilterKey());
+                switch (filter.getOperation()) {
+                    case EQ -> predicates.add(cb.equal(path, filter.getValues().get(0)));
+                    case NE -> predicates.add(cb.notEqual(path, filter.getValues().get(0)));
+                    case GT -> predicates.add(greaterThan(cb, path, filter));
+                    case LT -> predicates.add(lessThan(cb, path, filter));
+                    case GTE -> predicates.add(greaterThanOrEqual(cb, path, filter));
+                    case LTE -> predicates.add(lessThanOrEqual(cb, path, filter));
+                    case LIKE -> predicates.add(
+                            cb.like(
+                                    cb.lower(path.as(String.class)),
+                                    "%" + filter.getValues().get(0).toString().toLowerCase() + "%"
+                            )
+                    );
+                    case IN -> predicates.add(path.in(filter.getValues()));
+                    case BETWEEN -> predicates.add(between(cb, path, filter));
+                    case IS_NULL -> predicates.add(cb.isNull(path));
+                    case IS_NOT_NULL -> predicates.add(cb.isNotNull(path));
                 }
             }
-
             return cb.and(predicates.toArray(new Predicate[0]));
         };
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private Predicate greaterThan(CriteriaBuilder cb, Path<?> path, SearchFilterCriteria f) {
+        return cb.greaterThan((Path<Comparable>) path, (Comparable) f.getValues().get(0));
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private Predicate lessThan(CriteriaBuilder cb, Path<?> path, SearchFilterCriteria f) {
+        return cb.lessThan((Path<Comparable>) path, (Comparable) f.getValues().get(0));
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private Predicate greaterThanOrEqual(CriteriaBuilder cb, Path<?> path, SearchFilterCriteria f) {
+        return cb.greaterThanOrEqualTo((Path<Comparable>) path, (Comparable) f.getValues().get(0));
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private Predicate lessThanOrEqual(CriteriaBuilder cb, Path<?> path, SearchFilterCriteria f) {
+        return cb.lessThanOrEqualTo((Path<Comparable>) path, (Comparable) f.getValues().get(0));
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private Predicate between(CriteriaBuilder cb, Path<?> path, SearchFilterCriteria f) {
+        return cb.between(
+                (Path<Comparable>) path,
+                (Comparable) f.getValues().get(0),
+                (Comparable) f.getValues().get(1)
+        );
+    }
+
+    private Path<?> resolvePath(From<?, ?> root, String key) {
+        if (!key.contains(".")) {
+            return root.get(key);
+        }
+        String[] parts = key.split("\\.");
+        Path<?> path = root;
+        for (String part : parts) {
+            path = path.get(part);
+        }
+        return path;
+    }
 }

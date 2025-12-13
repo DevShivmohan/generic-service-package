@@ -18,8 +18,12 @@ public class SearchFilterCriteria {
     @NotBlank
     private String filterKey;
 
-    private List<Object> value;
+    private List<Object> values;
 
     @NotNull
-    private String operation;
+    private SearchOperation operation;
+
+    public boolean isValid() {
+        return filterKey != null && operation != null;
+    }
 }
